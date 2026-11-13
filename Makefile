@@ -22,7 +22,7 @@ logs:
 
 ## Open a shell inside broker-1, where the Kafka command-line tools live.
 shell:
-	$(COMPOSE) exec broker-1 bash
+	@$(COMPOSE) exec broker-1 bash || true
 
 lint:
 	uv run ruff check .
