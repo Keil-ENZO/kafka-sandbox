@@ -1,6 +1,6 @@
 COMPOSE := docker compose -f infra/docker-compose.yml
 
-.PHONY: up down reset ps logs lint test
+.PHONY: up down reset ps logs shell lint test
 
 ## Start the cluster and wait until every broker is healthy.
 up:
@@ -19,6 +19,10 @@ ps:
 
 logs:
 	$(COMPOSE) logs -f --tail 100
+
+## Open a shell inside broker-1, where the Kafka command-line tools live.
+shell:
+	$(COMPOSE) exec broker-1 bash
 
 lint:
 	uv run ruff check .

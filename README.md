@@ -81,6 +81,7 @@ Requires Docker with Compose.
 ```bash
 make up      # start 3 brokers and AKHQ, wait until they are healthy
 make ps
+make shell   # open a shell in broker-1, with the Kafka command-line tools
 make down    # stop, keep the data
 make reset   # stop and delete the data
 ```
