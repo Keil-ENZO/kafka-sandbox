@@ -5,7 +5,7 @@
 
 A local Kafka playground that breaks on command, built to learn Kafka the hard way and to find out where AI agents actually help a platform team.
 
-**Status:** the 3-broker cluster runs. No services, faults or agents yet.
+**Status:** the 3-broker cluster and its AKHQ console run. No services, faults or agents yet.
 
 ## Why
 
@@ -79,13 +79,15 @@ make test
 Requires Docker with Compose.
 
 ```bash
-make up      # start 3 brokers and wait until they are healthy
+make up      # start 3 brokers and AKHQ, wait until they are healthy
 make ps
 make down    # stop, keep the data
 make reset   # stop and delete the data
 ```
 
 Brokers listen on `localhost:19092`, `localhost:29092` and `localhost:39092`. See [docs/networking.md](docs/networking.md).
+
+AKHQ, the web console, is at http://localhost:8085. It has no authentication: keep it on localhost or behind a private network.
 
 ## License
 

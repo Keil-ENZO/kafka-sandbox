@@ -38,3 +38,9 @@ def test_each_broker_advertises_its_own_host_port() -> None:
         host_port = str(svc["ports"][0]).split(":")[1]
         assert f"EXTERNAL://localhost:{host_port}" in svc["environment"]["KAFKA_ADVERTISED_LISTENERS"]
         assert f"INTERNAL://{name}:9092" in svc["environment"]["KAFKA_ADVERTISED_LISTENERS"]
+
+
+def test_akhq_knows_every_broker() -> None:
+    config = yaml.safe_load(SERVICES["akhq"]["environment"]["AKHQ_CONFIGURATION"])
+    bootstrap = config["akhq"]["connections"]["sandbox"]["properties"]["bootstrap.servers"]
+    assert sorted(bootstrap.split(",")) == [f"{name}:9092" for name in sorted(BROKERS)]
