@@ -5,7 +5,7 @@
 
 A local Kafka playground that breaks on command, built to learn Kafka the hard way and to find out where AI agents actually help a platform team.
 
-**Status:** early setup. Nothing runs yet.
+**Status:** the 3-broker cluster runs. No services, faults or agents yet.
 
 ## Why
 
@@ -73,6 +73,19 @@ uv sync
 make lint
 make test
 ```
+
+## Run the cluster
+
+Requires Docker with Compose.
+
+```bash
+make up      # start 3 brokers and wait until they are healthy
+make ps
+make down    # stop, keep the data
+make reset   # stop and delete the data
+```
+
+Brokers listen on `localhost:19092`, `localhost:29092` and `localhost:39092`. See [docs/networking.md](docs/networking.md).
 
 ## License
 

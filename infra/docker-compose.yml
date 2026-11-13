@@ -1,0 +1,77 @@
+# Kafka cluster: 3 nodes in KRaft combined mode, each one both broker and controller.
+# Confluent Platform 8.3.3 (Apache Kafka 4.3), community image.
+# Every published port binds to 127.0.0.1. See docs/networking.md for the listeners.
+name: kafka-sandbox
+
+x-broker: &broker
+  image: confluentinc/cp-kafka:8.3.3
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD-SHELL", "kafka-broker-api-versions --bootstrap-server localhost:9092 > /dev/null 2>&1"]
+    interval: 10s
+    timeout: 10s
+    retries: 12
+    start_period: 20s
+
+x-broker-env: &broker-env
+  CLUSTER_ID: 73OvZ-MHQAG4GzZwJaReiw
+  KAFKA_PROCESS_ROLES: broker,controller
+  KAFKA_CONTROLLER_QUORUM_VOTERS: 1@broker-1:9093,2@broker-2:9093,3@broker-3:9093
+  KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+  KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+  KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
+  # Replication settings that make a 3-node cluster worth having:
+  # every partition lives on 3 brokers, and a write needs 2 of them.
+  KAFKA_DEFAULT_REPLICATION_FACTOR: 3
+  KAFKA_MIN_INSYNC_REPLICAS: 2
+  KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+  KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+  KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 2
+  # Topics are created on purpose, never by a typo in a client.
+  KAFKA_AUTO_CREATE_TOPICS_ENABLE: "false"
+  KAFKA_HEAP_OPTS: -Xms512m -Xmx512m
+
+services:
+  broker-1:
+    <<: *broker
+    hostname: broker-1
+    ports:
+      - "127.0.0.1:19092:19092"
+    environment:
+      <<: *broker-env
+      KAFKA_NODE_ID: 1
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:19092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker-1:9092,EXTERNAL://localhost:19092
+    volumes:
+      - broker-1-data:/var/lib/kafka/data
+
+  broker-2:
+    <<: *broker
+    hostname: broker-2
+    ports:
+      - "127.0.0.1:29092:29092"
+    environment:
+      <<: *broker-env
+      KAFKA_NODE_ID: 2
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker-2:9092,EXTERNAL://localhost:29092
+    volumes:
+      - broker-2-data:/var/lib/kafka/data
+
+  broker-3:
+    <<: *broker
+    hostname: broker-3
+    ports:
+      - "127.0.0.1:39092:39092"
+    environment:
+      <<: *broker-env
+      KAFKA_NODE_ID: 3
+      KAFKA_LISTENERS: INTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:39092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://broker-3:9092,EXTERNAL://localhost:39092
+    volumes:
+      - broker-3-data:/var/lib/kafka/data
+
+volumes:
+  broker-1-data:
+  broker-2-data:
+  broker-3-data:
